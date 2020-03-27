@@ -1,0 +1,2 @@
+# quar
+A simple language
