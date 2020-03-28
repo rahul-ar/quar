@@ -1,8 +1,8 @@
-#include "chunk.hpp"
+#include "../include/chunk.hpp"
 
 namespace quar {
-    void Chunk::pushCode(OpCode opcode, int line) {
-        this->codes.push_back(static_cast<uint8_t> opCode);
+    void Chunk::pushCode(OpCode opCode, int line) {
+        this->codes.push_back(static_cast<unsigned int>(opCode));
         this->lines.push_back(line);
     }
 

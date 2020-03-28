@@ -1,22 +1,23 @@
-#include "vm.h"
+#include "../include/vm.hpp"
 
 namespace quar {
-    void run() {
+    void VM::run() {
         while(true) {
-            switch(*it++) {
-                case OP_CONSTANT:
+            const auto instruction = static_cast<OpCode>(*ip++);
+            switch(instruction) {
+                case OpCode::OP_CONSTANT:
                     //
                     break;
-                case OP_ADD:
+                case OpCode::OP_ADD:
                     //
                     break;
-                case OP_RETURN:
+                case OpCode::OP_RETURN:
                     return;
             }
         }
     }
 
-    void interpret(std::string source) {
+    void VM::interpret(std::string source) {
         this->chunk = compile(source);
         this->ip = this->chunk.codes.begin();
         run();

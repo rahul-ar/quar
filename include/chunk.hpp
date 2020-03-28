@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <cstdint>
+
 namespace quar {
     enum class OpCode {
         OP_CONSTANT,
@@ -8,7 +11,7 @@ namespace quar {
     };
 
     struct Chunk {
-        std::vector<std::uint8_t> codes;
+        std::vector<unsigned int> codes;
         std::vector<int> lines;
         std::vector<Value> constants;
         void pushCode(OpCode, int);
