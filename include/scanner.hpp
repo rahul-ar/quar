@@ -40,7 +40,6 @@ namespace quar {
 		}
 		Token() : type(TokenType::TOKEN_EOF) {
 		}
-		void print();
 	};
 
 	struct Scanner {

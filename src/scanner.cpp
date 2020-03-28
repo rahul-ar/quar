@@ -3,10 +3,6 @@
 #include <iostream>
 
 namespace quar {
-	void Token::print() {
-		if(this->type == TokenType::TOKEN_LEFT_BRACE)
-			std::cout<<"Success";
-	}
 	Token Scanner::makeToken(TokenType type) const {
 		size_t length = current - start;
 		return Token(type, source.substr(start, length), line);
@@ -97,7 +93,7 @@ namespace quar {
 		if (std::isdigit(c))
 			return number();
 		switch (c) {
-			case '(': std::cout<<"YYY";return makeToken(TokenType::TOKEN_LEFT_PAREN);
+			case '(': return makeToken(TokenType::TOKEN_LEFT_PAREN);
 			case ')': return makeToken(TokenType::TOKEN_RIGHT_PAREN);
 			case '{': return makeToken(TokenType::TOKEN_LEFT_BRACE);
 			case '}': return makeToken(TokenType::TOKEN_RIGHT_BRACE);

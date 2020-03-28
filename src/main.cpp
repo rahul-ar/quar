@@ -1,15 +1,17 @@
+
 #include <iostream>
 #include <fstream>
 #include <iterator>
 #include <string>
 
-#include "../include/chunk.hpp"
-#include "../include/vm.hpp"
+//#include "../include/chunk.hpp"
+//#include "../include/vm.hpp"
+#include "../include/scanner.hpp"
 
 using namespace quar;
 
 int main(int argc, const char* argv[]) {
-    if(argc == 1) {
+    /*if(argc == 1) {
         while(true) {
             std::cout << ">>>";
             std::string source;
@@ -24,5 +26,5 @@ int main(int argc, const char* argv[]) {
     }
     else {
         std::cout << "Improper usage";
-    }
+    }*/
 }
