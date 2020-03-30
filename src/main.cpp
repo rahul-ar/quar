@@ -7,6 +7,7 @@
 #include "../include/chunk.hpp"
 #include "../include/vm.hpp"
 #include "../include/scanner.hpp"
+#include "../include/debug.hpp"
 
 using namespace quar;
 
