@@ -1,13 +1,18 @@
 #include "../include/chunk.hpp"
 
-namespace quar {
+namespace Quar {
     void Chunk::pushCode(OpCode opCode, int line) {
-        this->codes.push_back(static_cast<unsigned int>(opCode));
+        this->codes.push_back(static_cast<uint8_t>(opCode));
         this->lines.push_back(line);
     }
 
-    std::vector<Value>::size_type Chunk::pushConstant(Value value) {
-        this->constants.push_back(value);
-        return this->constants.size() - 1;
+    void Chunk::pushCode(uint8_t param, int line) {
+        this->codes.push_back(param);
+        this->lines.push_back(line);
+    }
+
+    size_t Chunk::pushData(Data data) {
+        this->data.push_back(data);
+        return this->data.size()-1;
     }
 }
