@@ -5,10 +5,16 @@
 #include <variant>
 #include <string>
 
-#include "../include/data.hpp"
-namespace Quar {
+#include "data.hpp"
+namespace quar {
     enum class OpCode : uint8_t {
+        OP_POP,
         OP_CONSTANT,
+        OP_NOT,
+        OP_EQUAL,
+        OP_GREATER,
+        OP_LESSER,
+        OP_NEGATE,
         OP_ADD,
         OP_SUBTRACT,
         OP_MULTIPLY,
@@ -16,6 +22,9 @@ namespace Quar {
         OP_DEF_GLOBAL,
         OP_GET_GLOBAL,
         OP_SET_GLOBAL,
+        OP_JUMP,
+        OP_JUMP_IF_FALSE,
+        OP_LOOP,
         OP_PRINT,
         OP_RETURN
     };

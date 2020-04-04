@@ -2,18 +2,18 @@
 
 #include <string>
 #include <variant>
-#include <stdexcept>
 
-namespace {
-    struct Error : std::runtime_error {
-        using std::runtime_error::runtime_error;
-    };
-}
+#include "error.hpp"
 
-
-namespace Quar {
-    typedef std::variant<double, int, std::string, nullptr_t> Data;
+namespace quar {
+    typedef std::variant<double, int, std::string, bool> Data;
     void print(const Data);
+    bool truey(const Data);
+    Data nott(const Data);
+    Data negate(const Data);
+    Data equal(const Data, const Data);
+    Data greater(const Data, const Data);
+    Data lesser(const Data, const Data);
     Data add(const Data, const Data);
     Data subtract(const Data, const Data);
     Data multiply(const Data, const Data);

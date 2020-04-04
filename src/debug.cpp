@@ -31,5 +31,4 @@ namespace quar {
 		    offset = disassembleInstruction(chunk, offset);
 	    }
     }
-
 }

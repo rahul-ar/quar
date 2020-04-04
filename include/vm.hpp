@@ -6,9 +6,9 @@
 #include <cstdint>
 #include <stdexcept>
 
-#include "../include/chunk.hpp"
+#include "chunk.hpp"
 
-namespace Quar {
+namespace quar {
     class VM {
         private:
             Chunk chunk;
@@ -18,6 +18,7 @@ namespace Quar {
             void run();
 
         public:
+            // void interpret(std::string); 
             void interpret(Chunk);
     };
 }

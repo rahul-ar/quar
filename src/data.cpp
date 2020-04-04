@@ -11,66 +11,149 @@ namespace {
     template<class... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 }
 
-namespace Quar {
+namespace quar {
     void print(const Data data) {
-        std::visit([](auto&& arg) {std::cout << arg;}, data);
+        std::visit([](auto&& arg) {
+            std::cout << arg;
+        }, data);
+    }
+
+    bool truey(const Data a) {
+        return std::visit(overloaded {
+            [] (bool a) -> bool {
+                return a;
+            },
+            [] (auto&& a) -> bool {
+                throw Error("Invalid operand type");
+            }
+        }, a);
+    }
+
+    Data nott(const Data a) {
+        return std::visit(overloaded {
+            [] (bool a) -> Data {
+                return Data(!a);
+            },
+            [] (auto&& a) -> Data {
+                throw Error("Invalid operand type");
+            }
+        }, a);
+    }
+
+    Data negate(const Data a) {
+        return std::visit(overloaded {
+            [] (int a) -> Data {
+                return Data(-a);
+            },
+            [] (double a) -> Data {
+                return Data(-a);
+            },
+            [] (auto&& a) -> Data {
+                throw Error("Invalid operand type");
+            }
+        }, a);
+    }
+
+    Data equal(const Data a, const Data b) {
+        return std::visit(overloaded {
+            [] (int a, int b) -> Data {
+                return Data(a == b);
+            },
+            [] (double a, double b) -> Data {
+                return Data(a == b);
+            },
+            [] (std::string a, std::string b) -> Data {
+                return Data(a == b);
+            },
+            [] (auto&& a, auto&& b) -> Data {
+                return Data(false);
+            }
+         }, a, b);
+    }
+
+    Data greater(const Data a, const Data b) {
+        return std::visit(overloaded {
+            [] (int a, int b) -> Data {
+                return Data(a > b);
+            },
+            [] (double a, double b) -> Data {
+                return Data(a > b);
+            },
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
+            }
+         }, a, b);
+    }
+
+    Data lesser(const Data a, const Data b) {
+        return std::visit(overloaded {
+            [] (int a, int b) -> Data {
+                return Data(a < b);
+            },
+            [] (double a, double b) -> Data {
+                return Data(a < b);
+            },
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
+            }
+         }, a, b);
     }
 
     Data add(const Data a, const Data b) {
         return std::visit(overloaded {
-            [] (int arg1, int arg2) -> Data {
-                return Data(arg1 + arg2);
+            [] (int a, int b) -> Data {
+                return Data(a + b);
             },
-            [](double arg1, double arg2) -> Data {
-                return Data(arg1 + arg2);
+            [] (double a, double b) -> Data {
+                return Data(a + b);
             },
-            [](std::string arg1, std::string arg2) -> Data {
-                return Data(arg1 + arg2);
+            [] (std::string a, std::string b) -> Data {
+                return Data(a + b);
             },
-            [](auto&& arg1, auto&& arg2) -> Data {
-                throw Error{"Invalid operand types"};
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
             }
         }, a, b);
     }
 
     Data subtract(const Data a, const Data b) {
         return std::visit(overloaded {
-            [] (int arg1, int arg2) -> Data {
-                return Data(arg1 - arg2);
+            [] (int a, int b) -> Data {
+                return Data(a - b);
             },
-            [](double arg1, double arg2) -> Data {
-                return Data(arg1 - arg2);
+            [] (double a, double b) -> Data {
+                return Data(a - b);
             },
-            [](auto&& arg1, auto&& arg2) -> Data {
-                throw Error{"Invalid operand types"};
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
             }
         }, a, b);
     }
 
     Data multiply(const Data a, const Data b) {
         return std::visit(overloaded {
-            [] (int arg1, int arg2) -> Data {
-                return Data(arg1 * arg2);
+            [] (int a, int b) -> Data {
+                return Data(a * b);
             },
-            [](double arg1, double arg2) -> Data {
-                return Data(arg1 * arg2);
+            [] (double a, double b) -> Data {
+                return Data(a * b);
             },
-            [](auto&& arg1, auto&& arg2) -> Data {
-                throw Error{"Invalid operand types"};
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
             }
         }, a, b);
     }
 
     Data divide(const Data a, const Data b) {
         return std::visit(overloaded {
-            [] (int arg1, int arg2) -> Data {
-                return Data(arg1 / arg2);
+            [] (int a, int b) -> Data {
+                return Data(a / b);
             },
-            [](double arg1, double arg2) -> Data {
-                return Data(arg1 / arg2);
+            [] (double a, double b) -> Data {
+                return Data(a / b);
             },
-            [](auto&& arg1, auto&& arg2) -> Data {
-                throw Error{"Invalid operand types"};
+            [] (auto&& a, auto&& b) -> Data {
+                throw Error("Invalid operand types");
             }
         }, a, b);
     }
