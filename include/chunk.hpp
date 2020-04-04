@@ -15,6 +15,7 @@ namespace quar {
         OP_GREATER,
         OP_LESSER,
         OP_NEGATE,
+        OP_NIL,
         OP_ADD,
         OP_SUBTRACT,
         OP_MULTIPLY,

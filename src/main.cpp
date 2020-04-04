@@ -28,7 +28,7 @@ int main(int argc, const char* argv[]) {
         chunk.pushCode(OpCode::OP_RETURN, 3);
         disassembleChunk(chunk, "test chunk");
         Compiler c(vm);
-        c.compile("(1-2)");
+        c.compile("t=9;");
 
         //std::cout << c.compile'("1+2");
         /*size_t offset = chunk.pushData(Data(5));

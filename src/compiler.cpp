@@ -52,10 +52,16 @@
 	    errorAtCurrent(*this, message);
     }
 
+    bool Parser::match(TokenType type) {
+        if (!(current.type == type)) return false;
+        advance();
+        return true;
+    }
+
     void Compiler::emitByte(uint8_t byte) {
         //std::cout << "in";
-        chunk.lines.push_back(parser->previous.line);
-        chunk.codes.push_back(static_cast<uint8_t>(byte));
+        vm.chunk.lines.push_back(parser->previous.line);
+        vm.chunk.codes.push_back(static_cast<uint8_t>(byte));
     }
 
     void Compiler::emitBytes(uint8_t byte1, uint8_t byte2) {
@@ -68,7 +74,8 @@
     bool Compiler::compile(std::string_view source) {
         this->parser = new Parser(source);
         parser->advance();
-        expression();
+        while (!parser->match(TokenType::TOKEN_EOF))
+		    declaration();
         parser->consume(TokenType::TOKEN_EOF, "Expect end of Expression");
         endCompiler();
         return !parser->hadError;
@@ -81,7 +88,7 @@
     }
 
     uint8_t Compiler::makeConstant(Data data) {
-        auto val = chunk.pushData(data);
+        auto val = vm.chunk.pushData(data);
         if(val > UINT8_MAX) {
             error(*parser, "Too many constants in one chunk.");
             return 0;
@@ -121,10 +128,23 @@
         parsePrecedence(Precedence::PREC_ASSIGNMENT);
     }
 
+    void Compiler::declaration() {
+        if (parser->match(TokenType::TOKEN_VAR)) {
+
+            std::cout << "var";
+		    varDeclaration();
+        }
+	    else {
+		    expression();
+	        parser->consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
+	        emitByte(static_cast<uint8_t>(OpCode::OP_POP));
+        }
+    }
+
     void Compiler::endCompiler() {
         emitReturn();                   
         if (!parser->hadError) {                    
-            disassembleChunk(chunk, "code");
+            disassembleChunk(vm.chunk, "code");
         }   
     }
 
@@ -142,30 +162,49 @@
 	    }
     }
 
-    /*void Compiler::varDeclaration() {
+
+    
+
+    void Compiler::namedVariable(std::string_view name, bool canAssign) {
+        auto arg = makeConstant((std::string) name);
+        if (canAssign && parser->match(TokenType::TOKEN_EQUAL)) {
+            expression();
+            emitBytes(static_cast<uint8_t>(OpCode::OP_SET_GLOBAL), (uint8_t)arg);
+        } 
+        else {
+            emitBytes(static_cast<uint8_t>(OpCode::OP_GET_GLOBAL), (uint8_t)arg);
+        }
+    }
+
+    void Compiler::variable(bool canAssign) {
+        namedVariable(std::string(parser->previous.start), canAssign);
+    }
+
+    void Compiler::defineVariable(uint8_t global) {
+        emitBytes(static_cast<uint8_t>(OpCode::OP_DEF_GLOBAL), static_cast<uint8_t>(global));
+    }
+
+    void Compiler::varDeclaration() {
 	    auto global = parseVariable("Expect variable name.");
 	    if (parser->match(TokenType::TOKEN_EQUAL))
 		    expression();
 	    else
-		    emitByte(OpCode::OP_NIL);
+		    emitByte(static_cast<uint8_t>(OpCode::OP_NIL));
 
 	    parser->consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 	    defineVariable(global);
     }
 
-    uint8_t Compiler::parseVariable(std::string_view error) {
-	    parser->consume(TokenType::TOKEN_IDENTIFIER, error);
-
-	    declareVariable();
-	    if (current->scope_depth > 0) return 0;
-
-	    return identifierConstant(parser->previous);
+    uint8_t Compiler::identifierConstant(Data name) {
+	    return makeConstant(name);
     }
 
-    uint8_t Compiler::identifierConstant(const Token& name) {
-	    return makeConstant(createObjString(name.start, vm));
-    }*/
+    uint8_t Compiler::parseVariable(std::string_view error) {
+	    parser->consume(TokenType::TOKEN_IDENTIFIER, error);
+        return identifierConstant(std::string(parser->previous.start));
+    }
 
+    
     void Compiler::parsePrecedence(Precedence precedence) {
 	    parser->advance();
         

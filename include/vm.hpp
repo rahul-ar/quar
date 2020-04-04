@@ -10,15 +10,12 @@
 
 
 namespace quar {
-    class VM {
-        private:
+    struct VM {
             Chunk chunk;
             std::vector<uint8_t>::const_iterator ip;
             std::vector<Data> stack;
             std::unordered_map<std::string, Data> globals;
             void run();
-
-        public:
             // void interpret(std::string); 
             void interpret(Chunk);
     };

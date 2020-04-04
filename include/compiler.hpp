@@ -54,19 +54,22 @@ namespace quar {
             std::cout << source;
         }
         void advance();
+        bool match(TokenType);
         void consume(TokenType type, std::string_view message);
     };
 
     struct Compiler {
         Parser *parser = nullptr; 
         VM& vm;
-        Chunk chunk;
+        int scopeDepth = 0;
+        //Chunk chunk;
         Compiler(VM& vm) : vm(vm) {
         }
            
     private:
         void parsePrecedence(Precedence);
         void expression();
+        void declaration();
         void grouping(bool can_assign);
         void number(bool can_assign);
         void unary(bool can_assign);
@@ -77,9 +80,12 @@ namespace quar {
         uint8_t makeConstant(Data);
         void emitConstant(Data);
         void endCompiler();
-        /*uint8_t parseVariable(std::string_view error);
-        uint8_t identifierConstant(const Token& name);
-        void varDeclaration();*/
+        void defineVariable(uint8_t);
+        uint8_t identifierConstant(Data);
+        uint8_t parseVariable(std::string_view error);
+        void varDeclaration();
+        void namedVariable(std::string_view, bool);
+        void variable(bool can_assign);
         
         
     public:
@@ -104,7 +110,7 @@ namespace quar {
             { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::GREATER_EQUAL   
             { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::LESS            
             { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::LESS_EQUAL      
-            { nullptr,     nullptr,    Precedence::PREC_NONE },       // TokenType::IDENTIFIER      
+            { &Compiler::variable,     nullptr,    Precedence::PREC_NONE },       // TokenType::IDENTIFIER      
             { nullptr,     nullptr,    Precedence::PREC_NONE },       // TokenType::STRING          
             { &Compiler::number,   nullptr,    Precedence::PREC_NONE },       // TokenType::NUMBER          
             { nullptr,     nullptr,    Precedence::PREC_NONE },       // TokenType::AND             

@@ -153,6 +153,11 @@ namespace quar {
                 case OpCode::OP_RETURN: {
                     return;
                 }
+
+                case OpCode::OP_NIL: {
+                    stack.push_back(0);
+                    break;
+                }
             }
         }
     }
