@@ -60,11 +60,11 @@ namespace quar {
 		Token number();
 		//Token string();
 		TokenType identifierType()const;
-		TokenType checkKeyword(size_t begin, size_t length, std::string_view rest, TokenType type)const;
-		Token errorToken(std::string_view message)const;
-		Token makeToken(TokenType type)const;
+		TokenType checkKeyword(size_t, size_t, std::string_view, TokenType)const;
+		Token errorToken(std::string_view)const;
+		Token makeToken(TokenType)const;
 		bool isAtEnd()const;
-		bool match(char expected);
+		bool match(char);
 		char peekNext()const;
 		char peek()const;
 	};

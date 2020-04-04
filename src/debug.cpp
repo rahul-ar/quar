@@ -25,7 +25,7 @@ namespace quar {
         }
     }
 
-    void dissasembleChunk(const Chunk& chunk, std::string_view name) {
+    void disassembleChunk(const Chunk& chunk, std::string_view name) {
         std::cout << "== " << name << " ==\n";
 	    for (size_t offset = 0; offset < chunk.codes.size();) {
 		    offset = disassembleInstruction(chunk, offset);

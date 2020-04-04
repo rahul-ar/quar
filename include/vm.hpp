@@ -5,8 +5,9 @@
 #include <string>
 #include <cstdint>
 #include <stdexcept>
-
 #include "chunk.hpp"
+#include "compiler.hpp"
+
 
 namespace quar {
     class VM {

@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <variant>
 #include <string>
-
 #include "data.hpp"
+
 namespace quar {
     enum class OpCode : uint8_t {
         OP_POP,

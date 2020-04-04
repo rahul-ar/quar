@@ -13,6 +13,6 @@ namespace quar {
 
     size_t Chunk::pushData(Data data) {
         this->data.push_back(data);
-        return this->data.size()-1;
+        return this->data.size() - 1;
     }
 }
