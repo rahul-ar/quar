@@ -1,9 +1,11 @@
 #pragma once
 
 #include <vector>
+#include <unordered_map>
 #include <cstdint>
 #include <variant>
 #include <string>
+
 #include "data.hpp"
 
 namespace quar {
@@ -30,12 +32,19 @@ namespace quar {
         OP_RETURN
     };
 
-    struct Chunk {
-        std::vector<uint8_t> codes;
-        std::vector<int> lines;
-        std::vector<Data> data;
-        void pushCode(OpCode, int);
-        void pushCode(uint8_t, int);
-        size_t pushData(Data);
+    class Memory {
+        private:
+            std::vector<uint8_t> codes;
+            std::vector<int> lines;
+            std::vector<Data> data;
+        public:
+            Memory();
+            std::vector<uint8_t>::iterator ip;
+            std::unordered_map<std::string, Data> globals;
+            void pushCode(OpCode, int);
+            void pushCode(uint8_t, int);
+            size_t pushData(Data);
+            const std::vector<uint8_t>& getCodes() const;
+            const std::vector<Data>& getData() const;
     };
 }

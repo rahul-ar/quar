@@ -3,9 +3,18 @@
 #include <iostream>
 
 namespace quar {
+    VM::VM() : compiler(Compiler(&memory)) {
+        
+    }
+
+    void VM::interpret(std::string source) {
+        compiler.compile(source);
+        run();
+    }
+
     void VM::run() {
         while(true) {
-            const auto instruction = static_cast<OpCode>(*ip++);
+            const auto instruction = static_cast<OpCode>(*memory.ip++);
             switch(instruction) {
                 case OpCode::OP_POP: {
                     stack.pop_back();
@@ -13,7 +22,7 @@ namespace quar {
                 }
 
                 case OpCode::OP_CONSTANT: {
-                    stack.push_back(chunk.data.at(*ip++));
+                    stack.push_back(memory.getData().at(*memory.ip++));
                     break;
                 }
 
@@ -95,16 +104,16 @@ namespace quar {
                 }
 
                 case OpCode::OP_DEF_GLOBAL: {
-                    std::string var = std::get<std::string>(chunk.data.at(*ip++));;
-                    globals[var] = stack.back();
+                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));;
+                    memory.globals[var] = stack.back();
                     stack.pop_back();
                     break; 
                 }
 
                 case OpCode::OP_GET_GLOBAL: {
-                    std::string var = std::get<std::string>(chunk.data.at(*ip++));
-                    const auto it = globals.find(var);
-                    if(it == globals.end()) {
+                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));
+                    const auto it = memory.globals.find(var);
+                    if(it == memory.globals.end()) {
                         throw Error("Invalid variable name");
                     }
                     stack.push_back(it->second);
@@ -112,9 +121,9 @@ namespace quar {
                 }
 
                 case OpCode::OP_SET_GLOBAL: {
-                    std::string var = std::get<std::string>(chunk.data.at(*ip++));
-                    const auto it = globals.find(var);
-                    if(it == globals.end()) {
+                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));
+                    const auto it = memory.globals.find(var);
+                    if(it == memory.globals.end()) {
                         throw Error("Variable not defined");
                     }
                     it->second = stack.back();
@@ -123,23 +132,23 @@ namespace quar {
                 }
 
                 case OpCode::OP_JUMP: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    ip += jumpLength + 2;
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    memory.ip += jumpLength + 2;
                     break;
                 }
 
                 case OpCode::OP_JUMP_IF_FALSE: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    ip += 2;
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    memory.ip += 2;
                     if(!truey(stack.back())) {
-                        ip += jumpLength;
+                        memory.ip += jumpLength;
                     }
                     break;
                 }
 
                 case OpCode::OP_LOOP: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    ip += - jumpLength - 1;
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    memory.ip += - jumpLength - 1;
                     break;
                 }
 
@@ -160,18 +169,5 @@ namespace quar {
                 }
             }
         }
-    }
-
-    // void VM::interpret(std::string source) {
-    //     this->chunk = chunk;
-    //     ip = this->chunk.codes.begin();
-    //     run();
-    // }
-
-    // Code below written for testing
-    void VM::interpret(Chunk chunk) {
-        this->chunk = chunk;
-        ip = this->chunk.codes.begin();
-        run();
     }
 }

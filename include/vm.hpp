@@ -5,18 +5,19 @@
 #include <string>
 #include <cstdint>
 #include <stdexcept>
-#include "chunk.hpp"
+
+#include "memory.hpp"
 #include "compiler.hpp"
 
-
 namespace quar {
-    struct VM {
-            Chunk chunk;
-            std::vector<uint8_t>::const_iterator ip;
+    class VM {
+        private:
+            Memory memory;
+            Compiler compiler;
             std::vector<Data> stack;
-            std::unordered_map<std::string, Data> globals;
             void run();
-            // void interpret(std::string); 
-            void interpret(Chunk);
+        public:
+            VM();
+            void interpret(std::string);
     };
 }

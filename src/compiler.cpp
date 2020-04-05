@@ -5,8 +5,7 @@
 #include <iostream>
 
  
- namespace { 
-    using namespace quar;
+ namespace quar {
 
     const ParseRule& getRule(TokenType type) {
 	    return Compiler::rules[static_cast<size_t>(type)];
@@ -58,16 +57,17 @@
         advance();
         return true;
     }
- }
-
- namespace quar {
+ 
+    Compiler::Compiler(Memory* memory) : memory(memory) {
+        
+    }
 
     void Compiler::emitByte(uint8_t byte) {
-        memory.pushCode(byte, parser.previous.line);
+        memory->pushCode(byte, parser.previous.line);
     }
 
     void Compiler::emitByte(OpCode code) {
-        memory.pushCode(code, parser.previous.line);
+        memory->pushCode(code, parser.previous.line);
     }
 
     void Compiler::emitBytes(OpCode code, uint8_t byte) {
@@ -94,7 +94,7 @@
     }
 
     uint8_t Compiler::makeConstant(Data data) {
-        auto val = memory.pushData(data);
+        auto val = memory->pushData(data);
         if(val > UINT8_MAX) {
             error(parser, "Too many constants in one chunk.");
             return 0;
@@ -123,7 +123,7 @@
         parsePrecedence(Precedence::PREC_UNARY);
 	    switch (op) {
 		    case (TokenType::TOKEN_MINUS) : 
-                emitByte(static_cast<uint8_t>(OpCode::OP_NEGATE)); 
+                emitByte(OpCode::OP_NEGATE); 
                 break;
 		    default:
 			    break;
