@@ -81,7 +81,8 @@ namespace quar {
         void unary(bool can_assign);
         void binary(bool can_assign);
         void emitByte(uint8_t byte);
-        void emitBytes(uint8_t, uint8_t);
+        void emitByte(OpCode code);
+        void emitBytes(OpCode code, uint8_t byte);
         void emitReturn();
         uint8_t makeConstant(Data);
         void emitConstant(Data);

@@ -63,15 +63,17 @@
  namespace quar {
 
     void Compiler::emitByte(uint8_t byte) {
-        //std::cout << "in";
-        memory.lines.push_back(parser.previous.line);
-        memory.codes.push_back(static_cast<uint8_t>(byte));
+        memory.pushCode(byte, parser.previous.line);
     }
 
-    void Compiler::emitBytes(uint8_t byte1, uint8_t byte2) {
+    void Compiler::emitByte(OpCode code) {
+        memory.pushCode(code, parser.previous.line);
+    }
+
+    void Compiler::emitBytes(OpCode code, uint8_t byte) {
         //std::cout<<"in";
-        emitByte(byte1);
-        emitByte(byte2);
+        emitByte(code);
+        emitByte(byte);
     }
 
 
@@ -88,7 +90,7 @@
         
 
     void Compiler::emitReturn() {
-        emitByte(static_cast<uint8_t>(OpCode::OP_RETURN));
+        emitByte(OpCode::OP_RETURN);
     }
 
     uint8_t Compiler::makeConstant(Data data) {
@@ -102,7 +104,7 @@
 
     void Compiler::emitConstant(Data data) {
         //std::cout << "inC";
-        emitBytes(static_cast<uint8_t>(OpCode::OP_CONSTANT), makeConstant(data));
+        emitBytes(OpCode::OP_CONSTANT, makeConstant(data));
     }
 
     void Compiler::number(bool can_assign) {
@@ -141,7 +143,7 @@
 	    else {
 		    expression();
 	        parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
-	        emitByte(static_cast<uint8_t>(OpCode::OP_POP));
+	        emitByte(OpCode::OP_POP);
         }
     }
 
@@ -157,10 +159,10 @@
 	    const auto& rule = getRule(op);
 	    parsePrecedence(static_cast<Precedence>(static_cast<uint8_t>(rule.precedence) + 1));
         switch (op) {
-		    case TokenType::TOKEN_PLUS: emitByte(static_cast<uint8_t>(OpCode::OP_ADD)); break;
-		    case TokenType::TOKEN_MINUS: emitByte(static_cast<uint8_t>(OpCode::OP_SUBTRACT)); break;
-		    case TokenType::TOKEN_STAR: emitByte(static_cast<uint8_t>(OpCode::OP_MULTIPLY)); break;
-		    case TokenType::TOKEN_SLASH: emitByte(static_cast<uint8_t>(OpCode::OP_DIVIDE)); break;
+		    case TokenType::TOKEN_PLUS: emitByte(OpCode::OP_ADD); break;
+		    case TokenType::TOKEN_MINUS: emitByte(OpCode::OP_SUBTRACT); break;
+		    case TokenType::TOKEN_STAR: emitByte(OpCode::OP_MULTIPLY); break;
+		    case TokenType::TOKEN_SLASH: emitByte(OpCode::OP_DIVIDE); break;
 		    default:
 			    break;
 	    }
@@ -170,10 +172,10 @@
         auto arg = makeConstant((std::string) name);
         if (canAssign && parser.match(TokenType::TOKEN_EQUAL)) {
             expression();
-            emitBytes(static_cast<uint8_t>(OpCode::OP_SET_GLOBAL), (uint8_t)arg);
+            emitBytes(OpCode::OP_SET_GLOBAL, (uint8_t)arg);
         } 
         else {
-            emitBytes(static_cast<uint8_t>(OpCode::OP_GET_GLOBAL), (uint8_t)arg);
+            emitBytes(OpCode::OP_GET_GLOBAL, (uint8_t)arg);
         }
     }
 
@@ -182,16 +184,13 @@
     }
 
     void Compiler::defineVariable(uint8_t global) {
-        emitBytes(static_cast<uint8_t>(OpCode::OP_DEF_GLOBAL), static_cast<uint8_t>(global));
+        emitBytes(OpCode::OP_DEF_GLOBAL, static_cast<uint8_t>(global));
     }
 
     void Compiler::varDeclaration() {
 	    auto global = parseVariable("Expect variable name.");
 	    if (parser.match(TokenType::TOKEN_EQUAL))
 		    expression();
-	    else
-		    emitByte(static_cast<uint8_t>(OpCode::OP_NIL));
-
 	    parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 	    defineVariable(global);
     }
