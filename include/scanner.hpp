@@ -48,6 +48,7 @@ namespace quar {
 		size_t line = 1;
 		std::string_view source;
 
+		Scanner() {}
 		Scanner(std::string_view source) 
 			:source(source) {
 		}

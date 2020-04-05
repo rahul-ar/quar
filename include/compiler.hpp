@@ -10,11 +10,9 @@
 #include "debug.hpp"     
 
 
-namespace quar {
+namespace {
+    using namespace quar;
     struct Parser;
-    struct Chunk;
-    struct VM;
-    struct Compiler;
 
     enum class Precedence :uint8_t {                  
         PREC_NONE,                    
@@ -29,7 +27,13 @@ namespace quar {
         PREC_CALL,        // . ()     
         PREC_PRIMARY                  
     };
+}
 
+namespace quar {
+    class Compiler;
+} 
+
+namespace {
     using ParseFn = void (Compiler::*)(bool can_assign);
 
     struct ParseRule {
@@ -49,23 +53,25 @@ namespace quar {
 	    Token previous;
 	    bool hadError = false;
 	    bool panicMode = false;
-
         Parser(std::string_view source) : scanner(source) {
-            std::cout << source;
         }
+        Parser() {}
         void advance();
         bool match(TokenType);
         void consume(TokenType type, std::string_view message);
     };
+}
 
-    struct Compiler {
-        Parser *parser = nullptr; 
-        VM& vm;
+namespace quar {
+    class Compiler {
+    public:
+        Parser parser; 
+        Chunk memory;
         int scopeDepth = 0;
         //Chunk chunk;
-        Compiler(VM& vm) : vm(vm) {
+        Compiler(Chunk memory) {
+            this->memory = memory;
         }
-           
     private:
         void parsePrecedence(Precedence);
         void expression();
@@ -86,8 +92,6 @@ namespace quar {
         void varDeclaration();
         void namedVariable(std::string_view, bool);
         void variable(bool can_assign);
-        
-        
     public:
         bool compile(std::string_view source);
         constexpr static ParseRule rules[40] = {                                              

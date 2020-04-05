@@ -5,7 +5,8 @@
 #include <iostream>
 
  
- namespace quar { 
+ namespace { 
+    using namespace quar;
 
     const ParseRule& getRule(TokenType type) {
 	    return Compiler::rules[static_cast<size_t>(type)];
@@ -57,11 +58,14 @@
         advance();
         return true;
     }
+ }
+
+ namespace quar {
 
     void Compiler::emitByte(uint8_t byte) {
         //std::cout << "in";
-        vm.chunk.lines.push_back(parser->previous.line);
-        vm.chunk.codes.push_back(static_cast<uint8_t>(byte));
+        memory.lines.push_back(parser.previous.line);
+        memory.codes.push_back(static_cast<uint8_t>(byte));
     }
 
     void Compiler::emitBytes(uint8_t byte1, uint8_t byte2) {
@@ -72,13 +76,13 @@
 
 
     bool Compiler::compile(std::string_view source) {
-        this->parser = new Parser(source);
-        parser->advance();
-        while (!parser->match(TokenType::TOKEN_EOF))
+        parser = Parser(source);
+        parser.advance();
+        while (!parser.match(TokenType::TOKEN_EOF))
 		    declaration();
-        parser->consume(TokenType::TOKEN_EOF, "Expect end of Expression");
+        parser.consume(TokenType::TOKEN_EOF, "Expect end of Expression");
         endCompiler();
-        return !parser->hadError;
+        return !parser.hadError;
         //return 1;
     }
         
@@ -88,9 +92,9 @@
     }
 
     uint8_t Compiler::makeConstant(Data data) {
-        auto val = vm.chunk.pushData(data);
+        auto val = memory.pushData(data);
         if(val > UINT8_MAX) {
-            error(*parser, "Too many constants in one chunk.");
+            error(parser, "Too many constants in one chunk.");
             return 0;
         }
         return static_cast<uint8_t>(val);
@@ -103,17 +107,17 @@
 
     void Compiler::number(bool can_assign) {
         //std::cout << "number";
-        auto data = std::strtod(parser->previous.start.data(), nullptr);
+        auto data = std::strtod(parser.previous.start.data(), nullptr);
 	    emitConstant(data);
     }
 
     void Compiler::grouping(bool can_assign) {                                     
         expression();                                              
-        parser->consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
+        parser.consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after expression.");
     }
 
     void Compiler::unary(bool can_assign) {
-	    auto op = parser->previous.type;
+	    auto op = parser.previous.type;
         parsePrecedence(Precedence::PREC_UNARY);
 	    switch (op) {
 		    case (TokenType::TOKEN_MINUS) : 
@@ -129,27 +133,27 @@
     }
 
     void Compiler::declaration() {
-        if (parser->match(TokenType::TOKEN_VAR)) {
+        if (parser.match(TokenType::TOKEN_VAR)) {
 
-            std::cout << "var";
+            //std::cout << "var";
 		    varDeclaration();
         }
 	    else {
 		    expression();
-	        parser->consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
+	        parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
 	        emitByte(static_cast<uint8_t>(OpCode::OP_POP));
         }
     }
 
     void Compiler::endCompiler() {
         emitReturn();                   
-        if (!parser->hadError) {                    
-            disassembleChunk(vm.chunk, "code");
+        if (!parser.hadError) {                    
+            disassembleChunk(memory, "code");
         }   
     }
 
     void Compiler::binary(bool can_assign) {
-	    auto op = parser->previous.type;
+	    auto op = parser.previous.type;
 	    const auto& rule = getRule(op);
 	    parsePrecedence(static_cast<Precedence>(static_cast<uint8_t>(rule.precedence) + 1));
         switch (op) {
@@ -162,12 +166,9 @@
 	    }
     }
 
-
-    
-
     void Compiler::namedVariable(std::string_view name, bool canAssign) {
         auto arg = makeConstant((std::string) name);
-        if (canAssign && parser->match(TokenType::TOKEN_EQUAL)) {
+        if (canAssign && parser.match(TokenType::TOKEN_EQUAL)) {
             expression();
             emitBytes(static_cast<uint8_t>(OpCode::OP_SET_GLOBAL), (uint8_t)arg);
         } 
@@ -177,7 +178,7 @@
     }
 
     void Compiler::variable(bool canAssign) {
-        namedVariable(std::string(parser->previous.start), canAssign);
+        namedVariable(std::string(parser.previous.start), canAssign);
     }
 
     void Compiler::defineVariable(uint8_t global) {
@@ -186,12 +187,12 @@
 
     void Compiler::varDeclaration() {
 	    auto global = parseVariable("Expect variable name.");
-	    if (parser->match(TokenType::TOKEN_EQUAL))
+	    if (parser.match(TokenType::TOKEN_EQUAL))
 		    expression();
 	    else
 		    emitByte(static_cast<uint8_t>(OpCode::OP_NIL));
 
-	    parser->consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
+	    parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after variable declaration.");
 	    defineVariable(global);
     }
 
@@ -200,26 +201,26 @@
     }
 
     uint8_t Compiler::parseVariable(std::string_view error) {
-	    parser->consume(TokenType::TOKEN_IDENTIFIER, error);
-        return identifierConstant(std::string(parser->previous.start));
+	    parser.consume(TokenType::TOKEN_IDENTIFIER, error);
+        return identifierConstant(std::string(parser.previous.start));
     }
 
     
     void Compiler::parsePrecedence(Precedence precedence) {
-	    parser->advance();
+	    parser.advance();
         
-	    auto prefixRule = getRule(parser->previous.type).prefix;
+	    auto prefixRule = getRule(parser.previous.type).prefix;
 	    if (prefixRule == nullptr) {
-		    error(*parser, "Expect expression.");
+		    error(parser, "Expect expression.");
 		    return;
 	    }
 
 	    auto can_assign = precedence <= Precedence::PREC_ASSIGNMENT;
 	    (this->*prefixRule)(can_assign);
 
-	    while (precedence <= getRule(parser->current.type).precedence) {
-		    parser->advance();
-		    auto infix_rule = getRule(parser->previous.type).infix;
+	    while (precedence <= getRule(parser.current.type).precedence) {
+		    parser.advance();
+		    auto infix_rule = getRule(parser.previous.type).infix;
 		    (this->*infix_rule)(can_assign);
 	    }
     }
