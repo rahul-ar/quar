@@ -2,20 +2,19 @@
 
 #include <iostream>
 #include <iomanip>
-#include <string_view>
+#include <string>
 
 #include "../include/memory.hpp"
 
 namespace quar {
-    size_t simpleInstruction(std::string_view name, size_t offset) {
+    size_t simpleInstruction(std::string name, size_t offset) {
 	    std::cout << name << '\n';
 	    return offset + 1;
     }
 
-    size_t constant_instruction(std::string_view name, const Memory* memory, size_t offset) {
-	    auto constant = memory->getCodes().at(offset + 1);
+    size_t constantInstruction(std::string name, const Memory* memory, size_t offset) {
+	    auto constant = memory->getData().at(offset + 1);
 	    std::cout << std::setfill(' ') << std::left << std::setw(16) << name << ' ';
-	    std::cout << std::setw(4) << static_cast<unsigned>(constant) << '\n';
 	    return offset + 2;
     }
 
@@ -26,30 +25,38 @@ namespace quar {
         auto instruction = static_cast<OpCode>(memory->getCodes().at(offset));
         switch(instruction) {
             case OpCode::OP_CONSTANT:
+                return constantInstruction("OP_CONSTANT", memory, offset);
             case OpCode::OP_GET_GLOBAL:
+                return constantInstruction("OP_GET_GLOBAL", memory, offset);
 		    case OpCode::OP_DEF_GLOBAL:
+                return constantInstruction("OP_DEF_GLOBAL", memory, offset);
 		    case OpCode::OP_SET_GLOBAL:
-                return constant_instruction("OP_METHOD", memory, offset);
+                return constantInstruction("OP_SET_GLOBAL", memory, offset);
             case OpCode::OP_NIL:
+                return simpleInstruction("OP_NIL", offset);
 		    case OpCode::OP_POP:
+                return simpleInstruction("OP_POP", offset);
             case OpCode::OP_ADD:
+                return simpleInstruction("OP_ADD", offset);
 		    case OpCode::OP_SUBTRACT:
+                return simpleInstruction("OP_SUBTRACT", offset);
 		    case OpCode::OP_MULTIPLY:
+                return simpleInstruction("OP_MULTIPLY", offset);
 		    case OpCode::OP_DIVIDE:
+                return simpleInstruction("OP_DIVIDE", offset);
 		    case OpCode::OP_NOT:
+                return simpleInstruction("OP_NOT", offset);
 		    case OpCode::OP_NEGATE:    
+                return simpleInstruction("OP_NEGATE", offset);
             case OpCode::OP_RETURN :
-                return simpleInstruction("OP_METHOD", offset);
+                return simpleInstruction("OP_RETURN", offset);
             default : 
                 std::cout << "Unknown OpCode \n";
 			    return offset + 1;
         }
     }
 
-    void disassembleChunk(const Memory* memory, std::string_view name) {
-        std::cout << "== " << name << " ==\n";
-	    for (size_t offset = 0; offset < memory->getCodes().size();) {
-		    offset = disassembleInstruction(memory, offset);
-	    }
+    void disassembleChunk(const Memory* memory, std::string name) {
+
     }
 }

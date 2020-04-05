@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 #include <array>
 #include <optional>
 #include <iostream>
@@ -9,7 +9,6 @@
 #include "scanner.hpp"
 #include "data.hpp"
 #include "debug.hpp"     
-
 
 namespace quar {
     struct Parser;
@@ -39,9 +38,9 @@ namespace quar {
     };
 
 
-    void error(Parser& parser, std::string_view message);
-    void errorAtCurrent(Parser& parser, std::string_view message);
-    void errorAt(Parser& parser, const Token& token, std::string_view message);
+    void error(Parser& parser, std::string message);
+    void errorAtCurrent(Parser& parser, std::string message);
+    void errorAt(Parser& parser, const Token& token, std::string message);
     
     struct Parser {
         Scanner scanner;
@@ -49,12 +48,15 @@ namespace quar {
 	    Token previous;
 	    bool hadError = false;
 	    bool panicMode = false;
-        Parser(std::string_view source) : scanner(source) {
+        Parser(std::string source) : scanner(source) {
+
         }
-        Parser() {}
+        Parser() {
+
+        }
         void advance();
         bool match(TokenType);
-        void consume(TokenType type, std::string_view message);
+        void consume(TokenType type, std::string message);
     };
     class Compiler {
         private:
@@ -72,18 +74,18 @@ namespace quar {
             void emitByte(OpCode byte);
             void emitBytes(OpCode, uint8_t);
             void emitReturn();
-            uint8_t makeConstant(Data);
+            size_t makeConstant(Data);
             void emitConstant(Data);
             void endCompiler();
             void defineVariable(uint8_t);
             uint8_t identifierConstant(Data);
-            uint8_t parseVariable(std::string_view error);
+            uint8_t parseVariable(std::string error);
             void varDeclaration();
-            void namedVariable(std::string_view, bool);
+            void namedVariable(std::string, bool);
             void variable(bool can_assign);
         public:
             Compiler(Memory* memory);
-            bool compile(std::string_view source);
+            bool compile(std::string source);
             constexpr static ParseRule rules[40] = {                                              
                 { &Compiler::grouping, nullptr, Precedence::PREC_CALL },       // TokenType::LEFT_PAREN      
                 { nullptr,     nullptr,    Precedence::PREC_NONE },       // TokenType::RIGHT_PAREN     

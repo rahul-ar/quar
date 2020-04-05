@@ -1,6 +1,6 @@
 #pragma once
 
-#include <string_view>
+#include <string>
 
 namespace quar {
 	enum class TokenType : uint8_t {
@@ -31,44 +31,41 @@ namespace quar {
 
 	struct Token {
 		TokenType type;
-		std::string_view start;
+		std::string start;
 		size_t line = 1;
 
-		Token(TokenType type, std::string_view start, size_t line) {
+		Token(TokenType type, std::string start, size_t line) {
 			this->type = type;
 			this->start = start;
 			this->line = line;
 		}
 		Token() : type(TokenType::TOKEN_EOF) {
+
 		}
 	};
 
-	struct Scanner {
-		size_t start = 0;
-		size_t current = 0;
-		size_t line = 1;
-		std::string_view source;
-
-		Scanner() {}
-		Scanner(std::string_view source) 
-			:source(source) {
-		}
-
-		Token scanToken();
-	
+	class Scanner {
 	private :
+		void skipWhitespace();
 		char advance();
-		Token identifier();
-		Token number();
-		//Token string();
-		TokenType identifierType()const;
-		TokenType checkKeyword(size_t, size_t, std::string_view, TokenType)const;
-		Token errorToken(std::string_view)const;
-		Token makeToken(TokenType)const;
 		bool isAtEnd()const;
 		bool match(char);
 		char peekNext()const;
 		char peek()const;
+		TokenType identifierType()const;
+		TokenType checkKeyword(size_t, size_t, std::string, TokenType)const;
+		Token identifier();
+		Token number();
+		Token errorToken(std::string)const;
+		Token makeToken(TokenType)const;
+	public:
+		Scanner();
+		Scanner(std::string&);
+		size_t start;
+		size_t current;
+		size_t line;
+		std::string source;
+		Token scanToken();
 	};
 }
 

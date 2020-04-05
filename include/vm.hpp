@@ -14,6 +14,7 @@ namespace quar {
         private:
             Memory memory;
             Compiler compiler;
+            std::vector<uint8_t>::const_iterator ip;
             std::vector<Data> stack;
             void run();
         public:

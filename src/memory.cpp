@@ -1,10 +1,6 @@
 #include "../include/memory.hpp"
 
 namespace quar {
-    Memory::Memory() : ip(codes.begin()) {
-
-    }
-
     void Memory::pushCode(OpCode opCode, int line) {
         this->codes.push_back(static_cast<uint8_t>(opCode));
         this->lines.push_back(line);
@@ -26,5 +22,11 @@ namespace quar {
 
     const std::vector<Data>& Memory::getData() const {
         return this->data;
+    }
+
+    void Memory::clearMemory() {
+        codes.clear();
+        data.clear();
+        lines.clear();
     }
 }

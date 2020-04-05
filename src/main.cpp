@@ -13,7 +13,7 @@ int main(int argc, const char* argv[]) {
         while(true) {
             std::cout << ">>>";
             std::string source;
-            std::cin >> source;
+            std::getline(std::cin, source);
             vm.interpret(source);
         }
     }

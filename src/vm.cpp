@@ -9,12 +9,13 @@ namespace quar {
 
     void VM::interpret(std::string source) {
         compiler.compile(source);
+        ip = memory.getCodes().begin();
         run();
     }
 
     void VM::run() {
         while(true) {
-            const auto instruction = static_cast<OpCode>(*memory.ip++);
+            const auto instruction = static_cast<OpCode>(*ip++);
             switch(instruction) {
                 case OpCode::OP_POP: {
                     stack.pop_back();
@@ -22,7 +23,7 @@ namespace quar {
                 }
 
                 case OpCode::OP_CONSTANT: {
-                    stack.push_back(memory.getData().at(*memory.ip++));
+                    stack.push_back(memory.getData().at(*ip++));
                     break;
                 }
 
@@ -104,14 +105,14 @@ namespace quar {
                 }
 
                 case OpCode::OP_DEF_GLOBAL: {
-                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));;
+                    std::string var = std::get<std::string>(memory.getData().at(*ip++));;
                     memory.globals[var] = stack.back();
                     stack.pop_back();
                     break; 
                 }
 
                 case OpCode::OP_GET_GLOBAL: {
-                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));
+                    std::string var = std::get<std::string>(memory.getData().at(*ip++));
                     const auto it = memory.globals.find(var);
                     if(it == memory.globals.end()) {
                         throw Error("Invalid variable name");
@@ -121,7 +122,7 @@ namespace quar {
                 }
 
                 case OpCode::OP_SET_GLOBAL: {
-                    std::string var = std::get<std::string>(memory.getData().at(*memory.ip++));
+                    std::string var = std::get<std::string>(memory.getData().at(*ip++));
                     const auto it = memory.globals.find(var);
                     if(it == memory.globals.end()) {
                         throw Error("Variable not defined");
@@ -132,13 +133,13 @@ namespace quar {
                 }
 
                 case OpCode::OP_JUMP: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
                     memory.ip += jumpLength + 2;
                     break;
                 }
 
                 case OpCode::OP_JUMP_IF_FALSE: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
                     memory.ip += 2;
                     if(!truey(stack.back())) {
                         memory.ip += jumpLength;
@@ -147,7 +148,7 @@ namespace quar {
                 }
 
                 case OpCode::OP_LOOP: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*memory.ip);
+                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
                     memory.ip += - jumpLength - 1;
                     break;
                 }
@@ -160,12 +161,8 @@ namespace quar {
                 }
                 
                 case OpCode::OP_RETURN: {
+                    memory.clearMemory();
                     return;
-                }
-
-                case OpCode::OP_NIL: {
-                    stack.push_back(0);
-                    break;
                 }
             }
         }

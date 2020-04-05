@@ -3,9 +3,30 @@
 #include <iostream>
 
 namespace quar {
+	Scanner::Scanner() {
+
+	}
+		
+	Scanner::Scanner(std::string& source) 
+		: source(source),
+		start(0),
+		current(0),
+		line(1) {
+
+	}
+
 	Token Scanner::makeToken(TokenType type) const {
 		size_t length = current - start;
 		return Token(type, source.substr(start, length), line);
+	}
+
+	void Scanner::skipWhitespace() {
+		while(peek() == ' ' or peek() == '\n') {
+			if(peek() == '\n') {
+				line++;
+			}
+				advance();
+		}
 	}
 
 	bool Scanner::isAtEnd() const {
@@ -35,11 +56,11 @@ namespace quar {
 		return true;
 	}
 
-	Token Scanner::errorToken(std::string_view message) const {
+	Token Scanner::errorToken(std::string message) const {
 		return Token(TokenType::TOKEN_ERROR, message, line);
 	}
 
-	TokenType Scanner::checkKeyword(size_t begin, size_t length, std::string_view rest, TokenType type) const {
+	TokenType Scanner::checkKeyword(size_t begin, size_t length, std::string rest, TokenType type) const {
 		if ((current - start == begin + length) && (source.substr(start + begin, length) == rest))
 			return type;
 		return TokenType::TOKEN_IDENTIFIER;
@@ -48,14 +69,12 @@ namespace quar {
 	TokenType Scanner::identifierType() const {
 		switch (source.at(start)) {
 			case 'a': return checkKeyword(1, 2, "nd", TokenType::TOKEN_AND);
-			//case 'c': return checkKeyword(1, 4, "lass", TokenType::Class);
 			case 'e': return checkKeyword(1, 3, "lse", TokenType::TOKEN_ELSE);
 			case 'f':
 				if (current - start > 1) {
 					switch (source.at(start + 1)) {
 						case 'a': return checkKeyword(2, 3, "lse", TokenType::TOKEN_FALSE);
 						case 'o': return checkKeyword(2, 1, "r", TokenType::TOKEN_FOR);
-						//case 'u': return checkKeyword(2, 1, "n", TokenType::Fun);
 					}
 				}
 				break;
@@ -64,7 +83,6 @@ namespace quar {
 			case 'o': return checkKeyword(1, 1, "r", TokenType::TOKEN_OR);
 			case 'p': return checkKeyword(1, 4, "rint", TokenType::TOKEN_PRINT);
 			case 'r': return checkKeyword(1, 5, "eturn", TokenType::TOKEN_RETURN);
-			//case 's': return checkKeyword(1, 4, "uper", TokenType::Super);
 			case 't':
 				if (current - start > 1) {
 					switch (source.at(start + 1)) {
@@ -78,12 +96,11 @@ namespace quar {
 			default:
 				break;
 		}
-	return TokenType::TOKEN_IDENTIFIER;
+		return TokenType::TOKEN_IDENTIFIER;
 	}
 
 	Token Scanner::scanToken() {
-	//skip_whitespace();
-
+		skipWhitespace();
 		start = current;
 		if (isAtEnd()) return makeToken(TokenType::TOKEN_EOF);
 
@@ -112,7 +129,6 @@ namespace quar {
 				return makeToken(match('=') ? TokenType::TOKEN_LESS_EQUAL : TokenType::TOKEN_LESS);
 			case '>':
 				return makeToken(match('=') ? TokenType::TOKEN_GREATER_EQUAL : TokenType::TOKEN_GREATER);
-			//case '"': return string();
 		}
 		return errorToken("Unexpected character.");
 	}
