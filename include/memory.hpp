@@ -37,13 +37,14 @@ namespace quar {
             std::vector<uint8_t> codes;
             std::vector<int> lines;
             std::vector<Data> data;
-        public:
-            // Memory();
-            std::vector<uint8_t>::const_iterator ip;
             std::unordered_map<std::string, Data> globals;
+        public:
             void pushCode(OpCode, int);
             void pushCode(uint8_t, int);
             size_t pushData(Data);
+            void storeGlobal(std::string, Data);
+            Data getGlobal(std::string);
+            void setGlobal(std::string, Data);
             const std::vector<uint8_t>& getCodes() const;
             const std::vector<Data>& getData() const;
             void patchMemory(size_t, uint8_t);

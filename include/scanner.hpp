@@ -69,6 +69,3 @@ namespace quar {
 		Token scanToken();
 	};
 }
-
-	
-

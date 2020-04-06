@@ -16,6 +16,26 @@ namespace quar {
         return this->data.size() - 1;
     }
 
+    void Memory::storeGlobal(std::string var, Data data) {
+        globals[var] = data;
+    }
+
+    Data Memory::getGlobal(std::string var) {
+        const auto it = globals.find(var);
+        if(it == globals.end()) {
+            throw Error("Invalid variable name");
+        }
+        return it->second;
+    }
+
+    void Memory::setGlobal(std::string var, Data data) {
+        const auto it = globals.find(var);
+        if(it == globals.end()) {
+            throw Error("Variable not defined");
+        }
+        it->second = data;
+    }
+
     const std::vector<uint8_t>& Memory::getCodes() const{
         return this->codes;
     }

@@ -106,50 +106,42 @@ namespace quar {
 
                 case OpCode::OP_DEF_GLOBAL: {
                     std::string var = std::get<std::string>(memory.getData().at(*ip++));;
-                    memory.globals[var] = stack.back();
+                    memory.storeGlobal(var, stack.back());
                     stack.pop_back();
                     break; 
                 }
 
                 case OpCode::OP_GET_GLOBAL: {
                     std::string var = std::get<std::string>(memory.getData().at(*ip++));
-                    const auto it = memory.globals.find(var);
-                    if(it == memory.globals.end()) {
-                        throw Error("Invalid variable name");
-                    }
-                    stack.push_back(it->second);
+                    stack.push_back(memory.getGlobal(var));
                     break;
                 }
 
                 case OpCode::OP_SET_GLOBAL: {
                     std::string var = std::get<std::string>(memory.getData().at(*ip++));
-                    const auto it = memory.globals.find(var);
-                    if(it == memory.globals.end()) {
-                        throw Error("Variable not defined");
-                    }
-                    it->second = stack.back();
+                    memory.setGlobal(var, stack.back());
                     stack.pop_back();
                     break;
                 }
 
                 case OpCode::OP_JUMP: {
                     const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    memory.ip += jumpLength + 2;
+                    ip += jumpLength + 2;
                     break;
                 }
 
                 case OpCode::OP_JUMP_IF_FALSE: {
                     const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    memory.ip += 2;
+                    ip += 2;
                     if(!truey(stack.back())) {
-                        memory.ip += jumpLength;
+                        ip += jumpLength;
                     }
                     break;
                 }
 
                 case OpCode::OP_LOOP: {
                     const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    memory.ip += - jumpLength - 1;
+                    ip += - jumpLength - 1;
                     break;
                 }
 

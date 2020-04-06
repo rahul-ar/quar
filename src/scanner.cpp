@@ -21,7 +21,7 @@ namespace quar {
 	}
 
 	void Scanner::skipWhitespace() {
-		while(peek() == ' ' or peek() == '\n') {
+		while(peek() == ' ' or peek() == '\t' or peek() == '\n') {
 			if(peek() == '\n') {
 				line++;
 			}
@@ -163,6 +163,3 @@ namespace quar {
     	return makeToken(TokenType::TOKEN_STRING);
 	}
 }
-
-
-

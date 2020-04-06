@@ -37,7 +37,6 @@ namespace quar {
 	    Precedence precedence;
     };
 
-
     void error(Parser& parser, std::string message);
     void errorAtCurrent(Parser& parser, std::string message);
     void errorAt(Parser& parser, const Token& token, std::string message);
