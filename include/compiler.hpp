@@ -107,13 +107,13 @@ namespace quar {
                 { nullptr,     &Compiler::binary,  Precedence::PREC_FACTOR },     // TokenType::SLASH           
                 { nullptr,     &Compiler::binary,  Precedence::PREC_FACTOR },     // TokenType::STAR            
                 { &Compiler::unary,     nullptr,   Precedence::PREC_NONE },       // TokenType::BANG            
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::BANG_EQUAL      
+                { nullptr,     &Compiler::binary,  Precedence::PREC_EQUALITY },       // TokenType::BANG_EQUAL      
                 { nullptr,     nullptr,    Precedence::PREC_NONE },       // TokenType::EQUAL           
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::EQUAL_EQUAL     
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::GREATER         
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::GREATER_EQUAL   
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::LESS            
-                { nullptr,     &Compiler::binary,  Precedence::PREC_NONE },       // TokenType::LESS_EQUAL      
+                { nullptr,     &Compiler::binary,  Precedence::PREC_EQUALITY },       // TokenType::EQUAL_EQUAL     
+                { nullptr,     &Compiler::binary,  Precedence::PREC_COMPARISON },       // TokenType::GREATER         
+                { nullptr,     &Compiler::binary,  Precedence::PREC_COMPARISON },       // TokenType::GREATER_EQUAL   
+                { nullptr,     &Compiler::binary,  Precedence::PREC_COMPARISON },       // TokenType::LESS            
+                { nullptr,     &Compiler::binary,  Precedence::PREC_COMPARISON },       // TokenType::LESS_EQUAL      
                 { &Compiler::variable,     nullptr,    Precedence::PREC_NONE },       // TokenType::IDENTIFIER      
                 { &Compiler::string,     nullptr,    Precedence::PREC_NONE },       // TokenType::STRING          
                 { &Compiler::number,   nullptr,    Precedence::PREC_NONE },       // TokenType::NUMBER          

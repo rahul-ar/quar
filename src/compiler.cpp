@@ -212,10 +212,17 @@ namespace quar {
 	    const auto& rule = getRule(op);
 	    parsePrecedence(static_cast<Precedence>(static_cast<uint8_t>(rule.precedence) + 1));
         switch (op) {
+            case TokenType::TOKEN_BANG_EQUAL: emitByte(OpCode::OP_EQUAL); emitByte(OpCode::OP_NOT); break;
+		    case TokenType::TOKEN_EQUAL_EQUAL: emitByte(OpCode::OP_EQUAL); break;
+		    case TokenType::TOKEN_GREATER: std::cout << "DDD"; emitByte(OpCode::OP_GREATER); break;
+		    case TokenType::TOKEN_GREATER_EQUAL: emitByte(OpCode::OP_GREATER), emitByte(OpCode::OP_NOT); break;
+		    case TokenType::TOKEN_LESS: emitByte(OpCode::OP_LESSER); break;
+		    case TokenType::TOKEN_LESS_EQUAL: emitByte(OpCode::OP_GREATER), emitByte(OpCode::OP_NOT); break;
 		    case TokenType::TOKEN_PLUS: emitByte(OpCode::OP_ADD); break;
 		    case TokenType::TOKEN_MINUS: emitByte(OpCode::OP_SUBTRACT); break;
 		    case TokenType::TOKEN_STAR: emitByte(OpCode::OP_MULTIPLY); break;
 		    case TokenType::TOKEN_SLASH: emitByte(OpCode::OP_DIVIDE); break;
+            
 	    }
     }
 
@@ -270,6 +277,10 @@ namespace quar {
 		    parser.advance();
 		    auto infix_rule = getRule(parser.previous.type).infix;
 		    (this->*infix_rule)(can_assign);
+            if (can_assign && parser.match(TokenType::TOKEN_EQUAL)) {
+			    error(parser, "Invalid assignment target.");
+			    expression();
+		    }
 	    }
     }
 }                                                 
