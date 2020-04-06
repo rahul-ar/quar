@@ -56,6 +56,7 @@ namespace quar {
 		TokenType checkKeyword(size_t, size_t, std::string, TokenType)const;
 		Token identifier();
 		Token number();
+		Token string();
 		Token errorToken(std::string)const;
 		Token makeToken(TokenType)const;
 	public:

@@ -1,6 +1,7 @@
 #include "../include/compiler.hpp"
 
 #include <string>
+#include <string_view>
 #include <cstdlib>
 #include <iostream>
 
@@ -102,7 +103,14 @@ namespace quar {
     }
 
     void Compiler::number(bool can_assign) {
-	    emitConstant(Data(stoi(parser.previous.start)));
+	    emitConstant(Data(stod(parser.previous.start)));
+    }
+
+    void Compiler::string(bool canAssign) {
+        std::string_view str = parser.previous.start;
+        str.remove_prefix(1);
+        str.remove_suffix(1);
+        emitConstant(Data(std::string(str)));
     }
 
     void Compiler::grouping(bool can_assign) {                                     
@@ -129,10 +137,67 @@ namespace quar {
 		    varDeclaration();
         }
 	    else {
-		    expression();
-	        parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
-	        emitByte(OpCode::OP_POP);
+		    statement();
         }
+    }
+
+    void Compiler::statement() {
+        if(parser.match(TokenType::TOKEN_PRINT))
+            printStatement();
+        else if (parser.match(TokenType::TOKEN_LEFT_BRACE))
+		    block();
+        else if (parser.match(TokenType::TOKEN_IF))
+		    ifStatement();
+        else
+		    expressionStatement();
+    }
+
+    size_t Compiler::emitJump(OpCode code) {
+        emitByte(code);
+		emitByte(static_cast<uint8_t>(0xff));
+		emitByte(static_cast<uint8_t>(0xff));
+		return memory->getCodes().size() - 2;
+    }
+
+    void Compiler::patchJump(size_t offset) {
+        auto jump = memory->getCodes().size() - 2 - offset;
+        if (jump > UINT16_MAX)
+		    error(parser, "Too much code to jump over.");
+        memory->getCodes().at(offset) = static_cast<uint8_t>((jump >> 8) & 0xff);
+	    memory->getCodes().at(offset + 1) = static_cast<uint8_t>(jump & 0xff); 
+    }
+
+    void Compiler::ifStatement() {
+        parser.consume(TokenType::TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
+	    expression();
+	    parser.consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+        auto thenJump = emitJump(OpCode::OP_JUMP_IF_FALSE);
+	    emitByte(OpCode::OP_POP);
+	    statement();
+        auto elseJump = emitJump(OpCode::OP_JUMP);
+        patchJump(thenJump);
+        if (parser.match(TokenType::TOKEN_ELSE))
+		    statement();
+	    patchJump(elseJump);
+	    emitByte(OpCode::OP_POP);
+    }
+
+    void Compiler::block() {
+        while (!(parser.current.type == TokenType::TOKEN_RIGHT_BRACE) && !(parser.current.type == TokenType::TOKEN_EOF))
+		    declaration();
+	    parser.consume(TokenType::TOKEN_RIGHT_BRACE, "Expect '}' after block.");
+    }
+
+    void Compiler::expressionStatement() {
+        expression();
+	    parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after expression.");
+	    emitByte(OpCode::OP_POP);
+    }
+
+    void Compiler::printStatement() {
+        expression();
+        parser.consume(TokenType::TOKEN_SEMICOLON, "Expect ';' after value.");
+	    emitByte(OpCode::OP_PRINT);
     }
 
     void Compiler::endCompiler() {

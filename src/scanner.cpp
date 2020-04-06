@@ -129,9 +129,12 @@ namespace quar {
 				return makeToken(match('=') ? TokenType::TOKEN_LESS_EQUAL : TokenType::TOKEN_LESS);
 			case '>':
 				return makeToken(match('=') ? TokenType::TOKEN_GREATER_EQUAL : TokenType::TOKEN_GREATER);
+			case '"': return string();
 		}
 		return errorToken("Unexpected character.");
 	}
+
+	
 	
 	Token Scanner::number() {
 		while (std::isdigit(peek()))
@@ -149,6 +152,17 @@ namespace quar {
 			advance();
 		return makeToken(identifierType());
 	}
+
+	Token Scanner::string() {
+    	while (peek() != '"' && !isAtEnd()) {
+        	if (peek() == '\n') line++;
+        	advance();
+    	}
+    	if (isAtEnd()) return errorToken("Unterminated string.");
+    	advance();
+    	return makeToken(TokenType::TOKEN_STRING);
+	}
 }
+
 
 
