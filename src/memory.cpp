@@ -16,7 +16,7 @@ namespace quar {
         return this->data.size() - 1;
     }
 
-    const std::vector<uint8_t>& Memory::getCodes() const {
+    const std::vector<uint8_t>& Memory::getCodes() const{
         return this->codes;
     }
 
