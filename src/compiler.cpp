@@ -155,31 +155,29 @@ namespace quar {
     size_t Compiler::emitJump(OpCode code) {
         emitByte(code);
 		emitByte(static_cast<uint8_t>(0xff));
-		emitByte(static_cast<uint8_t>(0xff));
-		return memory->getCodes().size() - 2;
+		return memory->getCodes().size() - 1;
     }
 
     void Compiler::patchJump(size_t offset) {
-        auto jump = memory->getCodes().size() - 2 - offset;
-        if (jump > UINT16_MAX)
+        auto jump = memory->getCodes().size() - 1 - offset;
+        if (jump > UINT8_MAX)
 		    error(parser, "Too much code to jump over.");
-        memory->patchMemory(offset, static_cast<uint8_t>((jump >> 8) & 0xff));
-	    memory->patchMemory(offset + 1, static_cast<uint8_t>(jump & 0xff)); 
+        memory->patchMemory(offset, static_cast<uint8_t>(jump));
     }
 
     void Compiler::ifStatement() {
         parser.consume(TokenType::TOKEN_LEFT_PAREN, "Expect '(' after 'if'.");
-	    expression();
-	    parser.consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+        expression();
+        parser.consume(TokenType::TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
         auto thenJump = emitJump(OpCode::OP_JUMP_IF_FALSE);
-	    emitByte(OpCode::OP_POP);
-	    statement();
+        emitByte(OpCode::OP_POP);
+        statement();
         auto elseJump = emitJump(OpCode::OP_JUMP);
         patchJump(thenJump);
-        if (parser.match(TokenType::TOKEN_ELSE))
-		    statement();
-	    patchJump(elseJump);
-	    emitByte(OpCode::OP_POP);
+        emitByte(OpCode::OP_POP);
+        if (parser.match(TokenType::TOKEN_ELSE)) 
+            statement();
+        patchJump(elseJump);
     }
 
     void Compiler::block() {
@@ -214,7 +212,7 @@ namespace quar {
         switch (op) {
             case TokenType::TOKEN_BANG_EQUAL: emitByte(OpCode::OP_EQUAL); emitByte(OpCode::OP_NOT); break;
 		    case TokenType::TOKEN_EQUAL_EQUAL: emitByte(OpCode::OP_EQUAL); break;
-		    case TokenType::TOKEN_GREATER: std::cout << "DDD"; emitByte(OpCode::OP_GREATER); break;
+		    case TokenType::TOKEN_GREATER: emitByte(OpCode::OP_GREATER); break;
 		    case TokenType::TOKEN_GREATER_EQUAL: emitByte(OpCode::OP_GREATER), emitByte(OpCode::OP_NOT); break;
 		    case TokenType::TOKEN_LESS: emitByte(OpCode::OP_LESSER); break;
 		    case TokenType::TOKEN_LESS_EQUAL: emitByte(OpCode::OP_GREATER), emitByte(OpCode::OP_NOT); break;
@@ -265,7 +263,7 @@ namespace quar {
 
     void Compiler::parsePrecedence(Precedence precedence) {
 	    parser.advance();
-	    auto prefixRule = getRule(parser.previous.type).prefix;
+        auto prefixRule = getRule(parser.previous.type).prefix;
 	    if (prefixRule == nullptr) {
 		    error(parser, "Expect expression.");
 		    return;

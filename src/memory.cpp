@@ -13,7 +13,7 @@ namespace quar {
 
     size_t Memory::pushData(Data data) {
         this->data.push_back(data);
-        return this->data.size() - 1;
+        return this->data.size()-1;
     }
 
     void Memory::storeGlobal(std::string var, Data data) {
@@ -29,11 +29,11 @@ namespace quar {
     }
 
     void Memory::setGlobal(std::string var, Data data) {
-        const auto it = globals.find(var);
-        if(it == globals.end()) {
-            throw Error("Variable not defined");
-        }
-        it->second = data;
+        // const auto it = globals.find(var);
+        // if(it == globals.end()) {
+        //     throw Error("Variable not defined");
+        // }
+        globals[var] = data;
     }
 
     const std::vector<uint8_t>& Memory::getCodes() const{

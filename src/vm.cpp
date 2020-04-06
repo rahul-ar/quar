@@ -120,19 +120,18 @@ namespace quar {
                 case OpCode::OP_SET_GLOBAL: {
                     std::string var = std::get<std::string>(memory.getData().at(*ip++));
                     memory.setGlobal(var, stack.back());
-                    stack.pop_back();
                     break;
                 }
 
                 case OpCode::OP_JUMP: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    ip += jumpLength + 2;
+                    const auto jumpLength = *ip;
+                    ip += jumpLength + 1;
                     break;
                 }
 
                 case OpCode::OP_JUMP_IF_FALSE: {
-                    const auto jumpLength = reinterpret_cast<const uint16_t&>(*ip);
-                    ip += 2;
+                    const auto jumpLength = *ip;
+                    ip += 1;
                     if(!truey(stack.back())) {
                         ip += jumpLength;
                     }
