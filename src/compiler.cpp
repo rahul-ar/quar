@@ -163,8 +163,8 @@ namespace quar {
         auto jump = memory->getCodes().size() - 2 - offset;
         if (jump > UINT16_MAX)
 		    error(parser, "Too much code to jump over.");
-        memory->getCodes().at(offset) = static_cast<uint8_t>((jump >> 8) & 0xff);
-	    memory->getCodes().at(offset + 1) = static_cast<uint8_t>(jump & 0xff); 
+        memory->patchMemory(offset, static_cast<uint8_t>((jump >> 8) & 0xff));
+	    memory->patchMemory(offset + 1, static_cast<uint8_t>(jump & 0xff)); 
     }
 
     void Compiler::ifStatement() {
@@ -256,7 +256,6 @@ namespace quar {
         return identifierConstant(std::string(parser.previous.start));
     }
 
-    
     void Compiler::parsePrecedence(Precedence precedence) {
 	    parser.advance();
 	    auto prefixRule = getRule(parser.previous.type).prefix;

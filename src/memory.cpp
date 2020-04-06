@@ -24,6 +24,10 @@ namespace quar {
         return this->data;
     }
 
+    void Memory::patchMemory(size_t offset, uint8_t byte) {
+        codes[offset] = byte;
+    }
+
     void Memory::clearMemory() {
         codes.clear();
         data.clear();

@@ -46,6 +46,7 @@ namespace quar {
             size_t pushData(Data);
             const std::vector<uint8_t>& getCodes() const;
             const std::vector<Data>& getData() const;
+            void patchMemory(size_t, uint8_t);
             void clearMemory();
     };
 }
