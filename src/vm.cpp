@@ -78,9 +78,9 @@ namespace quar {
                 }
 
                 case OpCode::OP_SUBTRACT: {
-                    const auto a = std::move(stack.back());
-                    stack.pop_back();
                     const auto b = std::move(stack.back());
+                    stack.pop_back();
+                    const auto a = std::move(stack.back());
                     stack.pop_back();
                     stack.push_back(subtract(a, b));
                     break;
@@ -96,9 +96,9 @@ namespace quar {
                 }
 
                 case OpCode::OP_DIVIDE: {
-                    const auto a = std::move(stack.back());
-                    stack.pop_back();
                     const auto b = std::move(stack.back());
+                    stack.pop_back();
+                    const auto a = std::move(stack.back());
                     stack.pop_back();
                     stack.push_back(divide(a, b));
                     break;
