@@ -51,18 +51,18 @@ namespace quar {
                 }                
 
                 case OpCode::OP_GREATER: {
-                    const auto a = std::move(stack.back());
-                    stack.pop_back();
                     const auto b = std::move(stack.back());
+                    stack.pop_back();
+                    const auto a = std::move(stack.back());
                     stack.pop_back();
                     stack.push_back(greater(a, b));
                     break;
                 }         
 
                 case OpCode::OP_LESSER: {
-                    const auto a = std::move(stack.back());
-                    stack.pop_back();
                     const auto b = std::move(stack.back());
+                    stack.pop_back();
+                    const auto a = std::move(stack.back());
                     stack.pop_back();
                     stack.push_back(lesser(a, b));
                     break;
